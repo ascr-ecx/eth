@@ -1,0 +1,17 @@
+This project contains code for testing various configurations for in-situ visualization.   After cloning,
+cd into the root of the source tree (lets call it ROOT) and run:
+
+git submodule update --init --recursive
+
+to load the code for pvol, pvol-icet and pvol-ospray.
+
+Before this can be built, you'll need to download ispc from https://ispc.github.io/downloads.html   I've
+been using version 1.9.1   After you've downloaded the tar.gz file, untar it somewhere and put the root
+directory of the install in your PATH environment variable.   You should then be able to type `which ispc`
+and get the location of the ispc executable.
+
+To build, configure and build pvol-icet and pvol-ospray first.   There are scripts in configs/maverick which
+show the cmake setup used to build on Maverick.   cd into each directory, mkdir a build subdirectory, cd into
+it and look at ROOT/config/maverick/{pvol-icet.cmake, pvol-ospray.cmake, pvol.cmake} to see the cmake
+variables you need to consider.   Those are set up to install the code in the 'install' subdir of the ROOT 
+directory.
