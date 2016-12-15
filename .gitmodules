@@ -1,3 +1,9 @@
 [submodule "pvol-icet"]
 	path = pvol-icet
 	url = git@github.com:TACC/pvol-icet.git
+[submodule "pvol-ospray"]
+	path = pvol-ospray
+	url = git@github.com:TACC/pvol-ospray.git
+[submodule "pvol"]
+	path = pvol
+	url = git@github.com:TACC/pvol.git
