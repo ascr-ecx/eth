@@ -1,6 +1,6 @@
 #! /bin/env vtkpython
 
-import sys
+import sys, os
 from vtk import *
 
 dset = sys.argv[1]
@@ -94,6 +94,11 @@ w = vtkXMLUnstructuredGridWriter()
 w.SetInputConnection(trim.GetOutputPort())
 
 for i in range(kd.GetNumberOfRegions()):
+	ofile = '%s-%d.vtu' % (dset.rsplit('.', 1)[0], i)
+	if os.path.isfile(ofile):
+		print 'skipping ', ofile
+		continue
+
 	i0 = kd.GetCellList(i)
 	i1 = kd.GetBoundaryCellList(i)
 	pids = vtkIdList()
