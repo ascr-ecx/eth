@@ -15,3 +15,76 @@ which show the cmake setup used to build on Maverick.   cd into each directory, 
 subdirectory, cd into it and look at ROOT/config/maverick/{pvol-icet.cmake, pvol-ospray.cmake, 
 pvol.cmake} to see the cmake variables you need to consider.   Those are set up to install the 
 code in the 'install' subdir of the ROOT directory.
+
+Once the code is built, put ROOT/install/bin in your PATH environment variable and ROOT/install/lib
+and ROOT/install/lib64 in your LD_LIBRARY_PATH (or DYLD_LIBRARY_PATH on mac)
+
+Examples
+
+module load vtk paraview
+
+In ROOT/test, ./mkdata.py will create wavelet vtkUnstructuredGrid and vtkImageData datasets.
+
+First we'll render a simple image of the ImageData dataset.   This use of the code only 
+handles an extended version of Intel OSPRay's .vol/.raw format, so we use the vti2raw script 
+to convert wavelet.vti to wavelet.vol and wavelet.raw.   This script expects the name of the 
+.vti file and the variable to extract:
+
+vti2raw wavelet.vti RTData
+
+This will produce wavelet.raw, containing a binary brick-of-floats, and wavelet.vol, 
+containing the datatype, origin, counts, stepsize, and a pointer to the raw data:
+
+float
+0.000000 0.000000 0.000000
+21 21 21
+1.000000 1.000000 1.000000
+wavelet.raw
+
+The state executable is a wrapper of the visualization code that can be run in serial or
+parallel, and which can be connected to the simulator or simply load data from a .vol/.raw 
+file.   It is run:
+
+state state.json [-s w h] [-R | -V] 
+
+where:  
+	-s w h       specifies the default (1920x1080)
+	-R           use the raycaster renderer
+	-V           use the VTK-based renderer (default)
+
+state.json specifies the visualization to be performed, and identifies the dataset, 
+isovalues and clipping planes, transfer functions, camera parameters etc.   An example, in
+ROOT/test/wavelet.json, is:
+
+{
+    "DataModel": {
+        "volumes": [
+            {
+                "filename": "wavelet.vol",
+                "isovalues": "1 130",
+                "slices": "2 1 0 0 10 0 0 1 1",
+                "transfer function": {
+                    "color map": "3 0 0 1 0.5 0 1 0 1 1 0 0",
+                    "opacity map": "3 0 1 0.5 1 1 1"
+                }
+            }
+        ]
+    },
+    "Camera": {
+        "viewpoint": "30 35 50",
+        "viewdirection": "-20 -25 -40",
+        "viewup": "0 1 0",
+        "aov": "110"
+    },
+    "Lighting": {
+        "lights": "1 0.485071 -0.727607 -0.485071",
+        "shadows": "off",
+        "Ka": "0.5",
+        "Kd": "0.5",
+        "ambient occlusion": "0 1"
+    }
+}
+
+
+
+
