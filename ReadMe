@@ -61,3 +61,6 @@ Programs:
 		names are derived from the template with two substitutions, as above.  For example, a template of 'output-%d-%d.vtu'
 		will produce files of name output-t-k.vtu, with t varying from 0 to the number of timesteps and k varying from 0 
 		to the number of partitions.
+
+		As of now, there must be the same number of clients as servers; this should be relaxed in the future so that
+		there can be any number of clients up to the number of servers.
