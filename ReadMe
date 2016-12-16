@@ -41,6 +41,8 @@ float
 1.000000 1.000000 1.000000
 wavelet.raw
 
+State
+
 The state executable is a wrapper of the visualization code that can be run in serial or
 parallel, and which can be connected to the simulator or simply load data from a .vol/.raw 
 file.   It is run:
@@ -84,6 +86,17 @@ ROOT/test/wavelet.json, is:
         "ambient occlusion": "0 1"
     }
 }
+
+This state file loads 'wavelet.vol', sets an isovalue at 140, two slicing planes, one perpendicular to the X axis at X == 10, and one perpendidicular to the Z axis at Z == 1, a lighting environment and a camera.
+
+Given the -V parameter (or let to default) state will use the VTK visualization backend and produce vtk.png.   Given the -R parameter instead, it will use the raycasting backend and produce raycast.png.
+
+Run under MPI, state will partition the block of values and run one partition in each process.   Selecting an appropriate number of processes - e.g. one that nicely factors into three - is advised.
+
+Cinema
+
+Cinema behaves much like state, except that it (currently) hard-codes the variance of several properties to create Cinema dataset.
+
 
 
 

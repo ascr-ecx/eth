@@ -1,0 +1,4 @@
+IDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+export PATH=$IDIR/bin:$PATH
+export LD_LIBRARY_PATH=$IDIR/lib:$IDIR/lib64:$LD_LIBRARY_PATH
