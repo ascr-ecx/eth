@@ -4,22 +4,22 @@
             {
                 "filename": "wavelet.vol",
                 "isovalues": "1 130",
-                "slices": "2 1 0 0 10 0 0 1 1",
+                "slices": "2 1 0 0 -9 0 0 1 1",
                 "transfer function": {
-                    "color map": "3 0 0 1 0.5 0 1 0 1 1 0 0",
+                    "color map": "3 0 0 1 1 0.5 0 1 0 1 1 0 0",
                     "opacity map": "3 0 1 0.5 1 1 1"
                 }
             }
         ]
     },
     "Camera": {
-        "viewpoint": "30 35 50",
-        "viewdirection": "-20 -25 -40",
+        "viewpoint": "10 12 25",
+        "viewdirection": "-10 -12 -25",
         "viewup": "0 1 0",
-        "aov": "110"
+        "aov": "70"
     },
     "Lighting": {
-        "lights": "1 0.485071 -0.727607 -0.485071",
+        "lights": "2 0.485071 -0.727607 -0.485071, -0.485071  0.727607  0.485071",
         "shadows": "off",
         "Ka": "0.5",
         "Kd": "0.5",
