@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 2.8.7)
+project(Radial)
+find_package(VTK REQUIRED)
+include(${VTK_USE_FILE})
+add_executable(radial radial.cxx)
+target_link_libraries(radial ${VTK_LIBRARIES})
+install(TARGETS radial DESTINATION bin)
+

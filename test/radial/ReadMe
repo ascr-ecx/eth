@@ -1,0 +1,14 @@
+The radial executable creates potentialy time-varying VTI or PVTI files in which
+the scalar component variable is the scaled radial distance to the center of the 
+volume and the vector variable points away from the center. The scaling of the 
+scalar value is sinusoidal based on  the advancing time.  The dataset ranges from 
+-1 to 1 in three axes.
+
+Two options are available:
+
+-r x y z     Gives the resolution of the grid in samples (256^3)
+-t dt nt     Gives the delta-T and number of timesteps (0, 1)
+
+Run serially, it produces nt files, radial-K.vti for K the number of timesteps.
+Run parallel on M processes, it produces radial-K.pvti and radial-K-M.vti for M
+the number of timesteps.
