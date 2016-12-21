@@ -1,0 +1,35 @@
+{
+	"State": "wavelet.json",
+	"Variable": 
+	{
+		"type": "slice",
+		"axis": "Z",
+		"start": 0.9,
+		"end": 0.1,
+		"knt": 10,
+		"Variable":
+		{
+			"type": "isosurface",
+			"start": 0.9,
+			"end": 0.1,
+			"knt": 10,
+			"Variable":
+			{
+				"type": "camera",
+				"theta":
+				{
+					"start": 0.4,
+					"end": 0.6,
+					"knt": 10
+				},
+				"phi":
+				{
+					"start": 0.4,
+					"end": 0.6,
+					"knt": 10
+				}
+			}
+		}
+	}
+}
+
