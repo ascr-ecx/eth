@@ -1,0 +1,13 @@
+This directory contains tests for the state and cinema apps.
+mkdata.py creates .vti and .vtu's of the Wavelet data.   The executable 
+built in the radial subdir creates a vti (or pvti) containing
+in which the scalar component variable is the scaled radial distance 
+to the center of the volume and the vector variable points away from the 
+center. The scaling of the scalar value is sinusoidal based on 
+the advancing time. 
+
+cinema and state expect the .vol/.raw format; use the vti2raw script
+installed with the pvol project to convert the wavelet.vti and radial.vti
+files to that format.
+
+
