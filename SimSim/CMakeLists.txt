@@ -7,6 +7,6 @@ add_executable(WriterTest WriterTest.cpp)
 target_link_libraries(SimSim ${VTK_LIBRARIES})
 target_link_libraries(WriterTest ${VTK_LIBRARIES})
 install(TARGETS SimSim WriterTest DESTINATION bin)
-install(PROGRAMS clamprgns.py mk_layout  partition.py resample.py DESTINATION bin)
+install(PROGRAMS partition-vti.py clamprgns.py mk_layout  partition.py resample.py DESTINATION bin)
 install(FILES MyServerSocket.h DESTINATION include)
 
