@@ -2,47 +2,6 @@ This directory contains SimSim - the simulator-simulator, a test program, and se
 Should make and install easily; best to use VTK version 6 - otherwise, the MPAS reader will read 
 all variables from the .nc file and waste lots of time and memory.
 
-Scripts:
-	
-	mk_layout > layout
-
-		Run on in a parallel session, this produces a layout file (to stdout).  
-		The layout file contains the hostname and a port number for each process 
-		ordered by rank.  The rank-N process, running on the host given on the 
-		N'th line of the layout file, will open a server socket on the port given 
-		on that line.
-
-	partition.py  filename layout [variable, ...]
-
-		A vtkpython script that loads and partitions .vtu and MPAS .nc files.  
-		Arguments are the file to operate on, the (approximate) number of partitions
-		to produce, and a list of variables to process.  The output filenames
-		will be derived from the name of the input, with the extension removed 
-		and replaced by -K.vtu, where K varies from 0 to the number of partitions.
-
-		partition.py also produces a region file, containing the bounding box 
-		of each partition.   The output file name is derived from the input 
-		filename, with the extension removed and replaced by '.rgn'.  The n'th line 
-		of the region file contains xMin xMax yMin yMax zMin zMax for the n'th 
-		partition.
-
-	clamprgns.py rgnfile xmin xmax ymin ymax zmin zmax
-
-		Given a region file, this script trims each region to the bounding box
-		of given by the remainder of the parameters.  The original region file
-		is moved to rgnfile.orig    This script is particularly important for the
-		MPAS data, which should be trimmed to +-180, +-90 and +-largenumber
-
-	resample.py syntax: %s basename xres zres' 
-
-		A pvpython script that, given the base name of a partitioned .vtu (eg. 
-		foo, where foo.[nc|vtu] has been partitioned into foo-K.vtu and for 
-		which a foo.rgn file exists), this script uses ResampleToImage to sample
-		the data onto a vtkImageData object.   The output will have xres samples
-		in the X direction and a proportionate number of samples in the Y direction,
-		and zres samples in the Z direction.   The output files will be the same as
-		the input partition filenames with .vtu replaced by .vti
-
 Programs:
 
 	SimSim template layout
@@ -76,3 +35,56 @@ Programs:
 		As of now, there must be the same number of clients as servers; this should be
 		relaxed in the future so that there can be any number of clients up to the number
 		of servers.
+
+Scripts:
+	
+	mk_layout > layout
+
+		Run on in a parallel session, this produces a layout file (to stdout).  
+		The layout file contains the hostname and a port number for each process 
+		ordered by rank.  The rank-N process, running on the host given on the 
+		N'th line of the layout file, will open a server socket on the port given 
+		on that line.
+
+	partition.py  filename layout [variable, ...]
+
+		A vtkpython script that loads and partitions .vtu and MPAS .nc files.  
+		Arguments are the file to operate on, the (approximate) number of partitions
+		to produce, and a list of variables to process.  The output filenames
+		will be derived from the name of the input, with the extension removed 
+		and replaced by -K.vtu, where K varies from 0 to the number of partitions.
+		For compatibility with SimSim, the input filename should have a timestep 
+		attached.
+
+		partition.py also produces a region file, containing the bounding box 
+		of each partition.   The output file name is derived from the input 
+		filename, with the extension removed and replaced by '.rgn'.  The n'th line 
+		of the region file contains xMin xMax yMin yMax zMin zMax for the n'th 
+		partition.
+
+	partition-vti.py   filename
+
+		A vtkpython script that will partition a .vti file into a 2 x 2 x 2 set
+		of partition .vti files.  As above, the output filenames
+    will be derived from the name of the input, with the extension removed
+    and replaced by -K.vtu, where K varies from 0 to the number of partitions.
+		For compatibility with SimSim, the input filename should have a timestep 
+		attached.
+
+	clamprgns.py rgnfile xmin xmax ymin ymax zmin zmax
+
+		Given a region file, this script trims each region to the bounding box
+		of given by the remainder of the parameters.  The original region file
+		is moved to rgnfile.orig    This script is particularly important for the
+		MPAS data, which should be trimmed to +-180, +-90 and +-largenumber
+
+	resample.py syntax: %s basename xres zres' 
+
+		A pvpython script that, given the base name of a partitioned .vtu (eg. 
+		foo, where foo.[nc|vtu] has been partitioned into foo-K.vtu and for 
+		which a foo.rgn file exists), this script uses ResampleToImage to sample
+		the data onto a vtkImageData object.   The output will have xres samples
+		in the X direction and a proportionate number of samples in the Y direction,
+		and zres samples in the Z direction.   The output files will be the same as
+		the input partition filenames with .vtu replaced by .vti
+
