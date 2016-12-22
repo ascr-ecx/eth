@@ -1,13 +1,108 @@
-This directory contains tests for the state and cinema apps.
+This directory contains tests for the ecx-harness apps.
 mkdata.py creates .vti and .vtu's of the Wavelet data.   The executable 
 built in the radial subdir creates a vti (or pvti) containing
-in which the scalar component variable is the scaled radial distance 
+in which the scalar component variable is the scaled radialv distance 
 to the center of the volume and the vector variable points away from the 
 center. The scaling of the scalar value is sinusoidal based on 
 the advancing time. 
 
-cinema and state expect the .vol/.raw format; use the vti2raw script
-installed with the pvol project to convert the wavelet.vti and radial.vti
-files to that format.
+State
+
+As described in the root ReadMe, the state executable exercises ecx-harness
+renderers.   Given a state json file that specifies a data source, slicing and
+clipping plane parameters and camera and lighting information, state will render
+the corresponding visualization of the data source.  If given a dataset to render,
+state expects the .vol/.raw format; if run in parallel, state will implicitly
+partition the dataset.   If given a layout file, state process k will connect to
+the k'th server and receive .vti or .vts data from that server.
+
+State Example
+
+An example state json file is wavelet.json 
+
+As an example, a test wavelet  dataset can be created by:
+
+mkdata.py
+
+This will create wavelet.vti and wavelet.vts.   We then create a .vol/.raw files for
+wavelet.vti:
+
+vti2raw wavelet.vti
+
+This will create wavelet.vol and wavelet.raw.   Now we can run state serially:
+
+state -V -s 500 500 wavelet.json
+
+wavelet.json specifies an isovalue, a slicing plane and camera and lighting parameters.
+Given the -V option (or allowing to default) state will use the VTK-based geometry 
+pipeline renderer, and will produce a 500x500 image named 'vtk.png'.   Given the -R
+parameter (replacing -V), state will use the raycast renderer and will produce raycast.vti.
+
+Cinema
+
+cinema extends state to create cinema databases.  A cinema json file specifies
+a state json file for a starting point, and variables that vary isovalues, slice
+planes, and camera rotations.
+
+Cinema Example
+
+An example cinema json file is wavelet-cinema.json.   This file specifies wavelet.json
+as a starting point, but specifies 10 isovalues, 10 slicing planes, and 10 values for
+phi and theta rotations away from the starting viewpoint given in wavelet.json.   Again,
+-V and -R choose either the VTK or raycast renderers.  Now, however, 10,000 images will
+be generated named cinema0_ts_slc_iso_phi_theta.png (with ts varying from 0 to the number
+of timesteps - here 0, and slc, iso, phi and theta varying from 0 to 9.   Other
+files required by the Cinema viewer are also produced.
+
+SimSim 
+
+SimSim is a simulation-simulator intended to serve data to the state and cinema
+executables.  Given a template for a datafile name and a layout file, each SimSim
+opens a server port based on the corresponding line of the layout file.   It then
+enters a timestep loop.  It then forms a real filename by substituting the timestep
+number and it's process rank, reads the resulting file and waits for a vis server
+(for example, state or cinema) to connect.  It then hands the data to the vis
+side and moves on to the next timestep.
+
+SimSim takes one additional parameter - the number of timesteps to iterate.   By 
+default this count is 1.
+
+WriterTest
+
+WriterTest is a test program for SimSim.   Given a similar template and the same 
+layout file as SimSim receives, WriterTest receives data from a SimSim run and 
+writes it to output files formed (as above) from its given template. 
+
+SimSim and WriterTest Example
+
+In order to suit as a SimSim argument, we copy wavelet.vti to include a timestep
+number:
+
+cp wavelet.vti w-0.vti
+partition-vti.py w-0.vti
+
+This will create 8 partition files, w-0-k.vti for k in 0 .. 7.   We then
+create a layout file:
+
+mk_layout > layout
+
+And then run SimSim:
+
+ibrun -n 8 -o 0 SimSim w-%d-%d.vti layout
+
+which will start SimSim running, loading data and waiting for the vis side to connect.
+We then run WriterTest:
+
+ibrun -n 8 -o 0 WriterTest o-%d-%d.vti layout
+
+Each WriterTest process will connect to its corresponding SimSim process, read its 
+data, and write it.   The result will be 8 files, o-0-k.vti for k in 0 .. 7
+
+SimSim and state Example
+
+We can now use SimSim to hand the partitioned data to state.  A new 
+
+
+
 
 

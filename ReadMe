@@ -95,9 +95,43 @@ Run under MPI, state will partition the block of values and run one partition in
 
 Cinema
 
-Cinema behaves much like state, except that it (currently) hard-codes the variance of several properties to create Cinema dataset.
+Cinema is similar to state, but creates a cinema database rather than the single image specified by the input json.   Cinema json files refer to a state json file to get initial data, camera and lighting settings, but add specifications for varying slicing plane locations, isovalues, and rotations around the initial viewpoint.   An example, given in
+wavelet-cinema.json, is:
 
+{
+  "State": "wavelet.json",
+  "Variable":
+  {
+    "type": "slice",
+    "axis": "Z",
+    "start": 0.9,
+    "end": 0.1,
+    "knt": 10,
+    "Variable":
+    {
+      "type": "isosurface",
+      "start": 0.9,
+      "end": 0.1,
+      "knt": 10,
+      "Variable":
+      {
+        "type": "camera",
+        "theta":
+        {
+          "start": 0.4,
+          "end": 0.6,
+          "knt": 10
+        },
+        "phi":
+        {
+          "start": 0.4,
+          "end": 0.6,
+          "knt": 10
+        }
+      }
+    }
+  }
+}
 
-
-
+Here we start with the state given in wavelet.json, but we ignore the slice and isosurface specifications and replace them with a single slice perpendicular to the Z axis, varying from 0.1 to 0.9 of the full range in Z in 10 steps, and a single isosurface, varying from 0.1 to 0.9 of the full data range in 10 steps.   Finally, the viewpoint varies between -PI + 0.4 * 2 * PI and -PI + 0.6 * 2 * PI in 10 steps in both phi and theta around the initial view.  With four values (slice offset, isovalue, phi and theta) varying in 10 steps, the resulting cinema database will contain 10,000 images.
 

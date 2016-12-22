@@ -22,6 +22,7 @@ wrtr = vtkXMLImageDataWriter()
 wrtr.SetInputConnection(clp.GetOutputPort())
 
 e = [0]*6
+p = 0
 for i in range(2):
 	e[0] = origin[0] + i*step[0]
 	e[1] = (origin[0] + (i+1)*step[0]) if i != parts[0] else extent[1]
@@ -32,8 +33,9 @@ for i in range(2):
 			e[4] = origin[2] + k*step[2]
 			e[5] = (origin[2] + (k+1)*step[2]) if i != parts[2] else extent[5]
 			clp.SetOutputWholeExtent(e)
-			wrtr.SetFileName('%s-%d-%d-%d.vti' % (sys.argv[1].rsplit('.',1)[0], i, j, k))
+			wrtr.SetFileName('%s-%d.vti' % (sys.argv[1].rsplit('.',1)[0], p))
 			wrtr.Update()
+			p = p + 1
 
 
 
