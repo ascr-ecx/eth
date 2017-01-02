@@ -117,8 +117,9 @@ int main(int argc, char *argv[])
 														<< (zsz-1) << " 0 " << (ysz-1) << " 0 " << (xsz-1) 
 														<< "\" GhostLevel=\"1\" Origin=\"-1 -1 -1\" "
 														<< " Spacing=\"" << d << " " << d << " " << d << "\">\n";
-			pvti << "    <PPointData Scalars=\"scalar\" Vectors=\"vector\">\n";
-			pvti << "      <PDataArray type=\"Float32\" Name=\"scalar\"/>\n";
+			pvti << "    <PPointData Scalars=\"oneBall\" Vectors=\"vector\">\n";
+			pvti << "      <PDataArray type=\"Float32\" Name=\"oneBall\"/>\n";
+			pvti << "      <PDataArray type=\"Float32\" Name=\"eightBalls\"/>\n";
 			pvti << "      <PDataArray type=\"Float32\" Name=\"vector\" NumberOfComponents=\"3\"/>\n";
 		  pvti << "    </PPointData>\n";
     }
@@ -161,10 +162,12 @@ int main(int argc, char *argv[])
 						lzsz = (ez - sz) + 1;
 
 				int np = lxsz*lysz*lzsz;
-				float *scalar = new float[np];
+				float *oneBall = new float[np];
+				float *eightBalls = new float[np];
 				float *vector = new float[3*np];
 				float *g = vector;
-				float *p = scalar;
+				float *o = oneBall;
+				float *e = eightBalls;
 				for (int i = 0; i < lxsz; i++)
 				{
 					float X = -1 + (i+sx)*d;
@@ -175,7 +178,12 @@ int main(int argc, char *argv[])
 						{
 							float Z = -1 + (k+sz)*d;
 							float m = sqrt(X*X + Y*Y + Z*Z);
-							*p++ = T * m;
+							*o++ = T * m;
+							float dx = ((X < 0) ? -X : X) - 0.5;
+							float dy = ((Y < 0) ? -Y : Y) - 0.5;
+							float dz = ((Z < 0) ? -Z : Z) - 0.5;
+							m = sqrt(dx*dx + dy*dy + dz*dz);
+							*e++ = T * m;
 							*g++ = X / m;
 							*g++ = Y / m;
 							*g++ = Z / m;
@@ -189,12 +197,19 @@ int main(int argc, char *argv[])
 				id->SetSpacing(d, d, d);
 				id->SetOrigin(-1.0 + d*sz, -1.0 + d*sy, -1.0 + d*sx);
 
-				vtkFloatArray *scalars = vtkFloatArray::New();
-				scalars->SetNumberOfComponents(1);
-				scalars->SetArray(scalar, np, 1);
-				scalars->SetName("scalar");
-				id->GetPointData()->SetScalars(scalars);
-				scalars->Delete();
+				vtkFloatArray *oneBallArray = vtkFloatArray::New();
+				oneBallArray->SetNumberOfComponents(1);
+				oneBallArray->SetArray(oneBall, np, 1);
+				oneBallArray->SetName("oneBall");
+				id->GetPointData()->SetScalars(oneBallArray);
+				oneBallArray->Delete();
+
+				vtkFloatArray *eightBallsArray = vtkFloatArray::New();
+				eightBallsArray->SetNumberOfComponents(1);
+				eightBallsArray->SetArray(eightBalls, np, 1);
+				eightBallsArray->SetName("eightBalls");
+				id->GetPointData()->SetScalars(eightBallsArray);
+				eightBallsArray->Delete();
 
 				vtkFloatArray *vectors = vtkFloatArray::New();
 				vectors->SetNumberOfComponents(3);
