@@ -3,8 +3,8 @@
         "volumes": [
             {
                 "filename": "radial-0.vol",
-                "isovalues": "1 1.0",
-                "slices": "0 0 0 1 0",
+                "isovalues": "1 0.45",
+                "slices": "1 1 1 2 0",
                 "transfer function": {
                 "color map": "2    0.0 1 1 1   1.0 0.5 0.5 0.5",
                 "opacity map": "2    0 1    1 1"
@@ -13,10 +13,10 @@
         ]
     },
     "Camera": {
-        "viewpoint": "0 0 -2",
-        "viewdirection": "0 0 2",
+        "viewpoint": "1 2 3",
+        "viewdirection": "-1 -2 -3",
         "viewup": "0 1 0",
-        "aov": "90"
+        "aov": "40"
     },
     "Lighting": {
         "lights": "1 1 1 0",
