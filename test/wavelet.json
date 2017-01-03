@@ -13,8 +13,8 @@
         ]
     },
     "Camera": {
-        "viewpoint": "0 0 25",
-        "viewdirection": "0 0 -25",
+        "viewpoint": "10 20 25",
+        "viewdirection": "-10 -20 -25",
         "viewup": "0 1 0",
         "aov": "70"
     },

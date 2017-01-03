@@ -1,10 +1,16 @@
 This directory contains tests for the ecx-harness apps.
+
 mkdata.py creates .vti and .vtu's of the Wavelet data.   The executable 
-built in the radial subdir creates a vti (or pvti) containing
-in which the scalar component variable is the scaled radialv distance 
-to the center of the volume and the vector variable points away from the 
-center. The scaling of the scalar value is sinusoidal based on 
-the advancing time. 
+built in the radial subdir creates a vti (or pvti) containing a grid 
+defined on the space [-1, 1] in the three axes, of varying resolution (given
+on the command line).  Two scalar components and one vector component are
+defined: 'oneBall' is a scalar component containing the radial distance to
+the center of the volume (which will therefore isosurface as a sphere);
+'eightBall' is a scalar component containing the radial distance of 
+each point to the center of its octant (which will therefore isosurface
+as 8 spheres) and 'vector', a vector component pointing away from the 
+origin. If used to generate a time-varying data, the scalar components are
+scaled by a sinusoidal value in time.
 
 State
 
@@ -16,43 +22,67 @@ state expects the .vol/.raw format; if run in parallel, state will implicitly
 partition the dataset.   If given a layout file, state process k will connect to
 the k'th server and receive .vti or .vts data from that server.
 
-State Example
-
-An example state json file is wavelet.json 
-
-As an example, a test wavelet  dataset can be created by:
-
-mkdata.py
-
-This will create wavelet.vti and wavelet.vts.   We then create a .vol/.raw files for
-wavelet.vti:
-
-vti2raw wavelet.vti
-
-This will create wavelet.vol and wavelet.raw.   Now we can run state serially:
-
-state -V -s 500 500 wavelet.json
-
-wavelet.json specifies an isovalue, a slicing plane and camera and lighting parameters.
-Given the -V option (or allowing to default) state will use the VTK-based geometry 
-pipeline renderer, and will produce a 500x500 image named 'vtk.png'.   Given the -R
-parameter (replacing -V), state will use the raycast renderer and will produce raycast.vti.
-
 Cinema
 
 cinema extends state to create cinema databases.  A cinema json file specifies
 a state json file for a starting point, and variables that vary isovalues, slice
 planes, and camera rotations.
 
-Cinema Example
+Example
 
-An example cinema json file is wavelet-cinema.json.   This file specifies wavelet.json
-as a starting point, but specifies 10 isovalues, 10 slicing planes, and 10 values for
-phi and theta rotations away from the starting viewpoint given in wavelet.json.   Again,
--V and -R choose either the VTK or raycast renderers.  Now, however, 10,000 images will
-be generated named cinema0_ts_slc_iso_phi_theta.png (with ts varying from 0 to the number
-of timesteps - here 0, and slc, iso, phi and theta varying from 0 to 9.   Other
-files required by the Cinema viewer are also produced.
+To create test data we can use the 'radial' executable.  Run serially, radial
+will create a .vti and .vtu files.   To build it, cd into the 'radial' subdirectory,
+create a 'bld' directory there, cd into it and:
+
+CC=mpicc CXX=mpicxx cmake . -DVTK_DIR=wherever
+make 
+
+Now cd back to the test directory (up two) and run it serially:
+
+./radial/bld/radial -r 256 256 256
+
+and two files will be created: radial-0.vti and radial-0.vtu. Note that the -0
+part of the output file name reflects the timestep - by default, radial creates a single
+timestep.
+
+Now we create a .vol/.raw dataset of the 'eightBall' component:
+
+vti2raw radial-0.vti eightBalls
+
+This will result in the creation of radial-0.vol and radial-0.raw.   We can now 
+run state and cinema on this data directly.
+
+We run state serially, using the eightBalls.json specification file.   This 
+specifies the camera, the transfer function and one isosurface and one slicing 
+plane.
+
+state -s 512 512 eightBalls.json -V
+
+will create 'vtk.png' - an image of the dataset using the VTK pipeline.   Running
+
+state -s 512 512 eightBalls.json -R
+
+will create 'raycast.png' - an image of the dataset using the raycasting pipeline.  
+
+We can now run this in parallel as well:
+
+(on Maverick) ibrun state -s 512 512 eightBalls.json [-V | -R] 
+(on mac) mpirun -np 8 state -s 512 512 eightBalls.json [-V | -R] 
+
+and get the same visualization.
+In this case the data will be implicitly partitioned into 2x2x2 chunks, one assigned 
+to each of 8 processes.
+
+We can use the cinema executable to generate cinema databases in like manner.  The
+eightBalls-cinema.json specification file uses eightBalls.json as a starting point
+for a dataset, a camera location and a transfer function, but ignores its specification 
+of an isosurface and slicing plane.   Instead, it varies the isosurface from 0.1 to 0.9
+times the data range in ten steps, a slicing plane in ten positions along the X axis, 
+and ten values of phi and theta rotations.   It results in 10,000 images and, for each,
+a .__data__ file.
+
+And, again, this can be serially or in parallel, with a -R or -V parameter to choose
+either the raycast or VTK pipeline.
 
 SimSim 
 
@@ -75,34 +105,72 @@ writes it to output files formed (as above) from its given template.
 
 SimSim and WriterTest Example
 
-In order to suit as a SimSim argument, we copy wavelet.vti to include a timestep
-number:
+First we select the eightBalls component of radial-0.vti and partition it into 8
+subsets:
 
-cp wavelet.vti w-0.vti
-partition-vti.py w-0.vti
+partition-vti.py radial-0.vti eightBalls
 
-This will create 8 partition files, w-0-k.vti for k in 0 .. 7.   We then
-create a layout file:
+This will create 8 partition files, radial-0-k.vti for k in 0 .. 7.   We then
+create a layout file.   On TACC systems, this can be done in a parallel session by
+running:
 
 mk_layout > layout
 
+which will look at the SLURM environment to figure out the hosts and ports; since we 
+partitioned the data into 8, there better be 8 processes specified.  Edit partition-vti.py
+to change the number of partitions.
+
+Otherwise, a layout file is simply a list of IP addresses or hostnames and associated 
+ports.  If more than one process will run on a given host, it must be listed multiply
+in the layout file with unique port numbers.  On my Mac I use:
+
+localhost 1900
+localhost 1901
+localhost 1902
+localhost 1903
+localhost 1904
+localhost 1905
+localhost 1906
+localhost 1907
+
 And then run SimSim:
 
-ibrun -n 8 -o 0 SimSim w-%d-%d.vti layout
+(on Maverick) ibrun -n 8 -o 0 SimSim radial-%d-%d.vti layout
+(on mac) mpirun -np 8 SimSim radial-%d-%d.vti layout
 
 which will start SimSim running, loading data and waiting for the vis side to connect.
-We then run WriterTest:
+We then run WriterTest in an equivalent parallel session.
 
-ibrun -n 8 -o 0 WriterTest o-%d-%d.vti layout
+(on Maverick) ibrun WriterTest writer-%d-%d.vti layout
+(on mac) ibrun -n 8 -o 0 WriterTest writer-%d-%d.vti layout
+
+SimSim and WriterTest use socket connections.  The WriterTest parallel process can
+be run in the same parallel session as SimSim, in which case the data will be
+transferred from each SimSim process to the WriterTest process running on the same node,
+or can also be run in a separate parallel session, in which case the layout file
+will be used to create socket connections.  In this case the hostnames or IPs listed in 
+the layout file are important; they'll determine which network to use to communicate the
+data.   
 
 Each WriterTest process will connect to its corresponding SimSim process, read its 
-data, and write it.   The result will be 8 files, o-0-k.vti for k in 0 .. 7
+data, and write it.   The result will be 8 files, writer-0-k.vti for k in 0 .. 7
 
-SimSim and state Example
+Now we run SimSim and attach state to visualize the data.   We give state a modified 
+version of the eightBalls.json specifier, which replaces the filename of the data to
+operate on with the layout file:
 
-We can now use SimSim to hand the partitioned data to state.  A new 
+ diff eightBalls.json eightBalls-simsim.json
+5c5
+<                 "filename": "radial-0.vol",
+---
+>                 "layout": "layout",
 
+And, after starting SimSim in parallel as above, we run:
 
+(on Maverick) ibrun -n 8 -o 0 state -s 512 512 eightBalls-simsim.json [-V | -R]
+(on mac) mpirun -np 8 state -s 512 512 eightBalls-simsim.json [-V | -R]
 
-
-
+Since the same data was used as in the earler runs of state directly on the .vol/.raw
+data (though in a different manner) and the same isovalues and slicing planes were used
+(since the eightBalls-simsim.json is derived directly from eightBalls-simsim.json), the 
+resulting images will be identical to the earlier results.
