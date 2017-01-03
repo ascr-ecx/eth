@@ -57,8 +57,6 @@ GetPort(char *layout, int r, int &port)
 {
 	int lerr = 0, gerr;
 
-	std::cerr << "looking for r = " << r << " in " << layout << "\n";
-
   string server;
   ifstream ifs(layout);
   for (int i = 0; !lerr && i <= mpir; i++)
@@ -67,8 +65,6 @@ GetPort(char *layout, int r, int &port)
     if (ifs.eof())
       lerr = 1;
   }
-
-	std::cerr << "lerr " << lerr << "\n";
 
   MPI_Allreduce(&lerr, &gerr, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
   if (gerr)
@@ -199,9 +195,6 @@ main(int argc, char *argv[])
 
     vtkSocket *skt = OpenClientSocket(serverSocket, mpir);
 	
-    if (mpir == 0)
-      std::cerr << "got socket\n";
-
 		// If more than writing the raw data is required, a VTK pipeline 
 		// would be inserted here
 
