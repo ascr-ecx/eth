@@ -48,7 +48,6 @@ template<class TReader> vtkDataSet *ReadAnXMLFile(const char*fileName)
    TReader *reader = TReader::New();
    reader->SetFileName(fileName);
    reader->Update();
-   // reader->GetOutput()->Register(reader);
    return vtkDataSet::SafeDownCast(reader->GetOutput());
 }
 
@@ -188,13 +187,20 @@ main(int argc, char *argv[])
 	vtkDataSetWriter *wr = vtkDataSetWriter::New();
 	wr->WriteToOutputStringOn();
 
+	vtkSocket *skt = OpenClientSocket(serverSocket, mpir);
+
+  serverSocket->CloseSocket();
+  serverSocket->Delete();
+
   for (int t = 0; t < nt; t++)
   {
     if (mpir == 0)
+    {
       std::cerr << "starting timestep " << t << "\n";
+      int flag = 1;
+      skt->Send((const void *)&flag, sizeof(flag));
+    }
 
-    vtkSocket *skt = OpenClientSocket(serverSocket, mpir);
-	
 		// If more than writing the raw data is required, a VTK pipeline 
 		// would be inserted here
 
@@ -207,22 +213,20 @@ main(int argc, char *argv[])
 		skt->Send((const void *)&sz, sizeof(sz));
 		skt->Send((const void *)ptr, sz);
 
-		wr->Delete();
-
-		skt->CloseSocket();
-		skt->Delete();
-
     if (mpir == 0)
       std::cerr << "finished timestep " << t << "\n";
   }
 
-	vtkSocket *skt = OpenClientSocket(serverSocket, mpir);
-	int sz = -1;
-	skt->Send((const void *)&sz, sizeof(sz));
-		
+  if (mpir == 0)
+  {
+    int flag = 0;
+    skt->Send((const void *)&flag, sizeof(flag));
+  }
 
-	serverSocket->CloseSocket();
-	serverSocket->Delete();
+	wr->Delete();
+
+	skt->CloseSocket();
+	skt->Delete();
 
   MPI_Finalize();
 }

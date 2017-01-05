@@ -82,21 +82,27 @@ main(int argc, char *argv[])
 
 	GetServerAndPort(layoutfile, mpir, server, port);
 
-	for (int tstep = 0; true; tstep++)
-	{
-		int lerr, gerr;
+  vtkClientSocket *skt = vtkClientSocket::New();
+  int gerr, lerr = skt->ConnectToServer(server.c_str(), port);
 
-		vtkClientSocket *skt = vtkClientSocket::New();
-		lerr = skt->ConnectToServer(server.c_str(), port);
+  MPI_Allreduce(&lerr, &gerr, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+  if (gerr)
+  {
+    if (mpir == 0) cerr << "all clients can't reach their server\n";
+    MPI_Finalize();
+    exit(1);
+  }
 
-		MPI_Allreduce(&lerr, &gerr, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+  int tstep = 0;
+  while (true)
+  {
+    int flag;
+    if ((mpir == 0) && (skt->Receive(&flag, sizeof(flag)) < sizeof(flag)))
+        flag = 0;
 
-		if (gerr)
-		{
-			if (mpir == 0) cerr << "all clients can't reach their server\n";
-			MPI_Finalize();
-			exit(1);
-		}
+    MPI_Bcast(&flag, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    if (! flag)
+      break;
 
 		int sz;
 		char *str;
@@ -110,8 +116,6 @@ main(int argc, char *argv[])
 		void *ptr = array->GetVoidPointer(0);
 
 		skt->Receive(ptr, sz);
-		skt->CloseSocket();
-		skt->Delete();
 	
 		vtkSmartPointer<vtkDataSetReader> reader = vtkSmartPointer<vtkDataSetReader>::New();
 		reader->ReadFromInputStringOn();
@@ -122,11 +126,14 @@ main(int argc, char *argv[])
 		writer->SetInputConnection(reader->GetOutputPort());
 
 		char filename[1024];
-		sprintf(filename, tmplate, tstep, mpir);
+		sprintf(filename, tmplate, tstep++, mpir);
 		writer->SetFileName(filename);
 
 		writer->Update();
 	}
+
+  skt->CloseSocket();
+  skt->Delete();
 
 	MPI_Finalize();
 	exit(0);
