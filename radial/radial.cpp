@@ -118,6 +118,9 @@ int main(int argc, char *argv[])
 														<< "\" GhostLevel=\"1\" Origin=\"-1 -1 -1\" "
 														<< " Spacing=\"" << d << " " << d << " " << d << "\">\n";
 			pvti << "    <PPointData Scalars=\"oneBall\" Vectors=\"vector\">\n";
+			pvti << "      <PDataArray type=\"Float32\" Name=\"xramp\"/>\n";
+			pvti << "      <PDataArray type=\"Float32\" Name=\"yramp\"/>\n";
+			pvti << "      <PDataArray type=\"Float32\" Name=\"zramp\"/>\n";
 			pvti << "      <PDataArray type=\"Float32\" Name=\"oneBall\"/>\n";
 			pvti << "      <PDataArray type=\"Float32\" Name=\"eightBalls\"/>\n";
 			pvti << "      <PDataArray type=\"Float32\" Name=\"vector\" NumberOfComponents=\"3\"/>\n";
@@ -162,21 +165,30 @@ int main(int argc, char *argv[])
 						lzsz = (ez - sz) + 1;
 
 				int np = lxsz*lysz*lzsz;
+				float *xramp = new float[np];
+				float *yramp = new float[np];
+				float *zramp = new float[np];
 				float *oneBall = new float[np];
 				float *eightBalls = new float[np];
 				float *vector = new float[3*np];
+				float *x = xramp;
+				float *y = yramp;
+				float *z = zramp;
 				float *g = vector;
 				float *o = oneBall;
 				float *e = eightBalls;
-				for (int i = 0; i < lxsz; i++)
+				for (int i = 0; i < lzsz; i++)
 				{
-					float X = -1 + (i+sx)*d;
+					float Z = -1 + (i+sz)*d;
 					for (int j = 0; j < lysz; j++)
 					{
 						float Y = -1 + (j+sy)*d;
-						for (int k = 0; k < lzsz; k++)
+						for (int k = 0; k < lxsz; k++)
 						{
-							float Z = -1 + (k+sz)*d;
+							float X = -1 + (k+sx)*d;
+							*x++ = X;
+							*y++ = Y;
+							*z++ = Z;
 							float m = sqrt(X*X + Y*Y + Z*Z);
 							*o++ = T * m;
 							float dx = ((X < 0) ? -X : X) - 0.5;
@@ -197,6 +209,27 @@ int main(int argc, char *argv[])
 				id->SetSpacing(d, d, d);
 				id->SetOrigin(-1.0 + d*sz, -1.0 + d*sy, -1.0 + d*sx);
 
+				vtkFloatArray *xRampArray = vtkFloatArray::New();
+				xRampArray->SetNumberOfComponents(1);
+				xRampArray->SetArray(xramp, np, 1);
+				xRampArray->SetName("xramp");
+				id->GetPointData()->AddArray(xRampArray);
+				xRampArray->Delete();
+
+				vtkFloatArray *yRampArray = vtkFloatArray::New();
+				yRampArray->SetNumberOfComponents(1);
+				yRampArray->SetArray(yramp, np, 1);
+				yRampArray->SetName("yramp");
+				id->GetPointData()->AddArray(yRampArray);
+				yRampArray->Delete();
+
+				vtkFloatArray *zRampArray = vtkFloatArray::New();
+				zRampArray->SetNumberOfComponents(1);
+				zRampArray->SetArray(zramp, np, 1);
+				zRampArray->SetName("zramp");
+				id->GetPointData()->AddArray(zRampArray);
+				zRampArray->Delete();
+
 				vtkFloatArray *oneBallArray = vtkFloatArray::New();
 				oneBallArray->SetNumberOfComponents(1);
 				oneBallArray->SetArray(oneBall, np, 1);
@@ -208,7 +241,7 @@ int main(int argc, char *argv[])
 				eightBallsArray->SetNumberOfComponents(1);
 				eightBallsArray->SetArray(eightBalls, np, 1);
 				eightBallsArray->SetName("eightBalls");
-				id->GetPointData()->SetScalars(eightBallsArray);
+				id->GetPointData()->AddArray(eightBallsArray);
 				eightBallsArray->Delete();
 
 				vtkFloatArray *vectors = vtkFloatArray::New();
