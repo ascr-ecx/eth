@@ -15,6 +15,7 @@
 #include "MyServerSocket.h"
 
 #include <vtkDataSet.h>
+#include <vtkDataArraySelection.h>
 #include <vtkImageData.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLImageDataReader.h>
@@ -34,7 +35,7 @@ syntax(char *a)
 {
     if (mpir == 0)
     {
-      cerr << "syntax: " << a << " template layoutfile [options]\n";
+      cerr << "syntax: " << a << " template layoutfile [variable] [options]\n";
       cerr << "options:\n";
       cerr << "  -m r s             set rank, size (for testing)\n";
       cerr << "  -t n               n timesteps (default 1)\n";
@@ -43,12 +44,22 @@ syntax(char *a)
     exit(1);
 }
 
-template<class TReader> vtkDataSet *ReadAnXMLFile(const char*fileName)
+template<class TReader> vtkDataSet *ReadAnXMLFile(const char*fileName, char *var)
 {
-   TReader *reader = TReader::New();
-   reader->SetFileName(fileName);
-   reader->Update();
-   return vtkDataSet::SafeDownCast(reader->GetOutput());
+	TReader *reader = TReader::New();
+  reader->SetFileName(fileName);
+	if (var)
+	{
+		reader->UpdateInformation();
+		vtkDataArraySelection *sel = reader->GetPointDataArraySelection();
+		for (int i = 0; i < sel->GetNumberOfArrays(); i++)
+			if (strcmp(sel->GetArrayName(i), var))
+				sel->DisableArray(sel->GetArrayName(i));
+			else
+				sel->EnableArray(sel->GetArrayName(i));
+	}
+  reader->Update();
+  return vtkDataSet::SafeDownCast(reader->GetOutput());
 }
 
 void
@@ -123,10 +134,13 @@ OpenClientSocket(MyServerSocket *serverSocket, int rank)
 int
 main(int argc, char *argv[])
 {
-  int   nt = 1;
-  char  *layoutfile = NULL;
-  char  *tmplate = NULL;
-	int   datatype;
+  int   	nt = 1;
+  char  	*layoutfile = NULL;
+  char  	*tmplate = NULL;
+  char  	*var = NULL;
+	int   	datatype;
+
+	vector<string> variables;
 
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &mpis);
@@ -144,7 +158,9 @@ main(int argc, char *argv[])
         default: 
           syntax(argv[0]);
       }
-    else
+    else if (var == NULL)
+			var = argv[i];
+		else
       syntax(argv[0]);
 
   if (! layoutfile || ! tmplate)
@@ -157,7 +173,7 @@ main(int argc, char *argv[])
 	else
 	{
 		if (mpir == 0)
-			cerr << "Only .vtu and .vti files suported\n";
+			cerr << "Only .vtu and .vti files supported\n";
     MPI_Finalize();
     exit(1);
 	}
@@ -169,9 +185,9 @@ main(int argc, char *argv[])
 		char filename[1024];
 		sprintf(filename, tmplate, t, mpir);
 		if (datatype == VTI)
-			timesteps.push_back(ReadAnXMLFile<vtkXMLImageDataReader>(filename));
+			timesteps.push_back(ReadAnXMLFile<vtkXMLImageDataReader>(filename, var));
 		else
-			timesteps.push_back(ReadAnXMLFile<vtkXMLUnstructuredGridReader>(filename));
+			timesteps.push_back(ReadAnXMLFile<vtkXMLUnstructuredGridReader>(filename, var));
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
