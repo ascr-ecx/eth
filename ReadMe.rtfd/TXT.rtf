@@ -1,0 +1,601 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1348\cocoasubrtf170
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Consolas;\f2\fnil\fcharset0 Menlo-Regular;
+\f3\fnil\fcharset0 Consolas-Bold;}
+{\colortbl;\red255\green255\blue255;\red193\green101\blue28;\red224\green228\blue9;\red29\green226\blue223;
+}
+\margl1440\margr1440\vieww16640\viewh21580\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 This project contains code for testing various configurations for\
+in-situ visualization.   \
+\
+
+\b\fs36 Prerequisites\
+
+\b0\fs24 \
+
+\b VTK
+\b0  (I\'92m using version 7)\
+\
+On Maverick, I simply load the vtk module.  On my Mac I\'92m using a custom build, and use\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f1\fs28 \cf0 \CocoaLigature0 \
+export PATH=/Users/gda/vtk-7.0/bin:$PATH\
+export DYLD_LIBRARY_PATH=/Users/gda/vtk-7.0/lib:$DYLD_LIBRARY_PATH\
+export CMAKE_PREFIX_PATH=/Users/gda/vtk-7.0/lib/cmake/vtk-7.0:$CMAKE_PREFIX_PATH\
+export PYTHONPATH=/Users/gda/vtk-7.0/lib/python2.7/site-packages:$PYTHONPATH\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\b\fs24 \cf0 ISPC
+\b0 \
+\
+Download ispc from https://ispc.github.io/downloads.html  I've been using version 1.9.1   After you've downloaded the tar.gz file, untar it somewhere and put the root directory of the install in your PATH environment variable.   You should then be able to type `which ispc` and get the location of theispc executable.\
+\
+
+\b\fs36 Building\
+
+\b0\fs24 \
+Choose an installation location and \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 \
+git clone git@github.com:ascr-ecx/ecx-harness.git\
+cd ecx-harness\
+git submodule update --init --recursive\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 \
+I\'92ll refer to the install directory - \{wherever\}/ecx-harness, as 
+\b $PROJECT
+\b0 .   To get the latest updates of the subprojects,cd into each (pvol, pvol-icet and pvol-ospray) and checkout the master branch.\
+\
+Create and enter a build directory:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 \
+cd $PROJECT\
+mkdir bld\
+cd bld\
+ \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 And run cmake.  I use:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f1\fs28 \cf0 \CocoaLigature0 CC=mpicc \\\
+CXX=mpicxx \\\
+  cmake .. \\\
+    -DCMAKE_INSTALL_PREFIX=$\cf2 PROJECT\cf0 /\cf2 install\cf0  \\\
+    -DCMAKE_BUILD_TYPE=Release \\\
+    -DOSPRAY_APPS_MODELVIEWER=OFF \\\
+    -DOSPRAY_MODULE_LOADERS=OFF \\\
+    -DOSPRAY_MODULE_OPENGL_UTIL=OFF \\\
+    -DOSPRAY_APPS_QTVIEWER=OFF \\\
+    -DOSPRAY_APPS_VOLUMEVIEWER=OFF \\\
+    -DCMAKE_CXX_COMPILER=mpicxx \\\
+    -DISPC_EXECUTABLE=`which \cb3 ispc\cb1 ` \\\
+    -DCMAKE_CXX_FLAGS=-std=c++11\
+\
+cmake .\
+cmake .\
+make -j 8 install
+\f2\fs24 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\b\fs36 \cf0 Usage Examples\
+
+\b0\fs24 \
+In $PROJECT/test, run \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f1\fs28 \cf0 \CocoaLigature0 radial -r 256 256 256
+\f0\fs24 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 \
+
+\b radial 
+\b0 is an executable that is built and installed with dcx-harness.  The  source is in $PROJECT/radial.  It creates a .vti file with several variables defined on a -1 to 1 grid in three axes, with a grid resolution given by the -r parameter.   The variables are:\
+\
+	oneBall		scalars, the scaled distance to the origin \
+	eightBalls		scalars, the distance of to the center of the octant\
+	xramp			scalars, ramp in X\
+	yramp			scalars, ramp in Y\
+	zramp			scalars, ramp in Z\
+	vector			vectors, point away from the origin\
+\
+
+\b radial 
+\b0 produces an output file named 
+\f1\fs28 radial-0.vti\
+\
+
+\f0\fs24 First we'll render a simple image of the eightBalls variable.   This use of the 
+\b state 
+\b0 executable, which receives a .json file to specify the data, the visualization operators, the lighting and thecamera parameters.  First, though, we need to convert the data to the extended version of Intel OSPRay's .vol/.raw format, so we use the vti2raw script to do so.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 vti2raw radial-0.vti eightBalls
+\f0\fs24 \
+\
+to create 
+\f1\fs28 radial-0.vol 
+\f0\fs24 and
+\f1\fs28  radial-0.raw.  
+\f0\fs24 The .raw file contains a brick of floats,  while the .vol file contains a descriptor for the data, including  the datatype, origin, counts,stepsize, and a pointer to the raw data:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f1\fs28 \cf0 \CocoaLigature0 float\
+-1.000000 -1.000000 -1.000000\
+256 256 256\
+0.007843 0.007843 0.007843\
+radial-0.raw\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b\fs28 \cf0 State\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b0\fs24 \cf0 \
+The state executable is a wrapper of the visualization code that can be run in serial or parallel, and which can be connected to the simulator or simply load data from a .vol/.raw file.   It is run:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f2\fs28 \cf0 state state.json [-s w h] [-R | -V] \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 \
+where:  \
+	-s w h		specifies the default (1920x1080)\
+	-R     		use the raycaster renderer\
+	-V           	use the VTK-based renderer (default)\
+\
+state.json specifies the visualization to be performed, and identifies the dataset,  isovalues and clipping planes, transfer functions, camera parameters etc.  An example, in $PROJECT/test/eightBalls.json, is:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f1\fs28 \cf0 \CocoaLigature0 \{\
+    "DataModel": \{\
+        "volumes": [\
+            \{\
+                "filename": "radial-0.vol",\
+                "isovalues": "1 0.45",\
+                "slices": "1 1 1 2 0",\
+                "transfer function": \{\
+                    "color map": "3   0 0.5 0.5 1   0.5 0.5 1 0.5  1 1 0.5 0.5",\
+                    "opacity map": "2 0 1 1 1"\
+                \}\
+            \}\
+        ]\
+    \},\
+    "Camera": \{\
+        "viewpoint": "1 2 3",\
+        "viewdirection": "-1 -2 -3",\
+        "viewup": "0 1 0",\
+        "aov": "40"\
+    \},\
+    "Lighting": \{\
+        "lights": "1 1 1 0",\
+        "shadows": "off",\
+        "Ka": "0.5",\
+        "Kd": "0.5",\
+        "ambient occlusion": "0 1"\
+    \}\
+\}\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 \CocoaLigature1 \
+Note the annotations of the 
+\b volume
+\b0  entry - it specifies the data source, one isosurface (at 0.45), one slicing plane (1 1 2 0) and opacity and color transfer functions.  The remainder should be self-explanatory,\
+\
+Given the -V parameter (or let to default) state will use the VTK visualization backend and produce vtk.png.   Given the -R parameter instead, it will use the raycasting backend and produce raycast.png.\
+\
+Thus,\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f2\fs28 \cf0 state eightBalls.json -s 512 512  
+\f0\fs24 \
+\
+will create 
+\b vtk.png, 
+\b0 and\
+\
+
+\f2\fs28 state eightBalls.json -s 512 512 -R
+\f0\fs24 \
+\
+will create
+\b  raycast.png
+\b0 .   The two .png\'92s should be nearly identical (up to differences in the lighting models).\
+\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+\cf0 {{\NeXTGraphic raycast.png \width10240 \height10240
+}¬}\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 \
+
+\b raycast,png\
+
+\b0 \
+Run under MPI, 
+\b state
+\b0  will partition the block of values and process one partition in each process.   In the case of the  VTK pipeline, each participating process will use its local graphics card to render, so multiple processes on a node willcompete for the graphics card.   Similarly, the raycaster will use one thread for each processor core, so multiple processes on a node will compete for cores.   Finally, the partitioning  is pretty dumb; Selecting an appropriate number of processes - e.g. one that nicely factors into three - is advised.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b\fs28 \cf0 Cinema\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b0\fs24 \cf0 \
+
+\b cinema
+\b0  is similar to 
+\b state
+\b0 , but creates a cinema database rather than the single image specified by the input json.   Cinema json files 
+\i refer
+\i0  to a state json file to get initial data, camera and lighting settings, but add specifications for varying slicing plane locations, isovalues, and rotations around the initial viewpoint.   An example, given in eightballs-cinema.json, is:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f1\fs28 \cf0 \cb4 \CocoaLigature0 \{\cb1 \
+  "State": "eightBalls.json",\
+  "Variable":\
+  \{\
+    "type": "slice",\
+    "axis": "Z",\
+    "start": 0.9,\
+    "end": 0.1,\
+    "knt": 10,\
+    "Variable":\
+    \{\
+      "type": "isosurface",\
+      "start": 0.9,\
+      "end": 0.1,\
+      "knt": 10,\
+      "Variable":\
+      \{\
+        "type": "camera",\
+        "theta":\
+        \{\
+          "start": 0.4,\
+          "end": 0.6,\
+          "knt": 10\
+        \},\
+        "phi":\
+        \{\
+          "start": 0.4,\
+          "end": 0.6,\
+          "knt": 10\
+        \}\
+      \}\
+    \}\
+  \}\
+\}\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 \CocoaLigature1 Here we start with the state given in eightBalls.json, but we ignore the slice and isosurface specifications and replace them with a single slice perpendicular to the Z axis, varying from 0.1 to 0.9 of the full range in Z in 10 steps, and a single isosurface, varying from 0.1 to 0.9 of the full data range in 10 steps.  Finally, the viewpoint varies between -PI + 0.4 * 2 * PI and -PI + 0.6 * 2 * PI in 10 steps in both phi and theta around the initial view.  With four variables (slice offset, isovalue, phi and theta) varying in 10 steps, the resulting cinema database will contain 10,000 images.\
+\
+Due to the large number of files generated, its best to run this in a subdirectory of the test directory.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 cd $PROJECT/test\
+mkdir cinema\
+cd cinema\
+ln -s ../radial-0.vol ../radial-0.raw ../eightBalls.json ../eightBalls-cinema.json .\
+\
+cinema eightBalls-cinema.json -s 512 512 [-R | -V]\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 This will take a little while.   Note that the renderer used is 
+\i not
+\i0  reflected in the output file names.  Once the database is created, we can explore a single timestep, rotating it within a certain range, moving a slicing plane, and varying the isovalue.\
+\
+Again, cinema will run in parallel.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+\cf0 {{\NeXTGraphic Screen Shot 2017-01-12 at 10.42.17 AM.png \width16960 \height11600
+}¬}\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b\fs28 \cf0 Time Varying Data Via Socket Connections\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b0\fs24 \cf0 So far, we\'92ve only dealt with a single timestep.   We will now move on to time-varying data, which is pushed from the  parallel simulation-simulator SimSim to the visualization stage using socket connections.   To get the two sidesto connect, we use a 
+\i layout file
+\i0  which  identifies the hosts on which the \'93simulation\'94 is running and the ports each \'93simulation\'94 process will open for connection from the visualization side.   A layout file is simply a sequence of \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 hostname/IP port
+\f0\b\fs24 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b0 \cf0 entries, one for each \'93simulator\'94 process.   The host can be identified by an IP address or by a host name that is resolved to an IP address using the DNS system.   Note that the actual IP used will determine which network interface will be used.  If multiple \'93simulation\'94 processes run on the same node they will need to use separate ports.   Thus, to run 4-way on my laptop I use:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 localhost 1900
+\f0\fs24 \
+
+\f1\fs28 localhost 1901
+\f0\fs24 \
+
+\f1\fs28 localhost 1902
+\f0\fs24 \
+
+\f1\fs28 localhost 1903
+\f0\fs24 \
+\
+SimSim expects to read and transfer 
+\i pre-partitioned .vti datafiles
+\i0 .  To create test data, we add the 
+\f3\b\fs28 -t dt nt
+\f0\b0\fs24  options to the 
+\b radial 
+\b0 executable, which produces time-varying data as a sequence of 
+\b radial-
+\i k
+\i0 .vti 
+\b0 files, where the 
+\i\b k
+\i0\b0  is indicative of the timestep number, and where the time steps vary by scaling the variables by a value  determined by the time - the 
+\b dt 
+\b0 value specifies the interval between time steps, and the 
+\b nt 
+\b0 value specifies the number of time steps to be produced.\
+\
+Back in $PROJECT/test, run:\
+\
+
+\f1\fs28 radial -r 128 128 128 -t 0.1 32
+\f3\b \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 \
+
+\b0 producing 32 timesteps.  \
+\
+
+\b Running SimSim\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\b0\fs28 \cf0 SimSim template layout [variable] [options]\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\b\fs24 \cf0 \
+
+\b0 SimSim takes a 
+\i template
+\i0 , which identifies the files it operates on, and the layout file, which specifies the hostnames and ports that SimSim will use.  The template should include exactly two 
+\b %d 
+\b0 fields; when SimSim is processing  partitioned the first will replace the first with the timestep number and the second with the partition number.   Thus,  if we have 
+\b k 
+\b0 time steps of data partitioned 
+\b m
+\b0 -ways, we should have 
+\b k*m 
+\b0 individual files and might use 
+\i foo-%d-%d.vti 
+\i0 for our templates.\
+
+\b \
+
+\b0 To test this we must partition the 32 time steps produced in the 
+\b radial
+\b0  step above, and a simple vtk-based python script is included to do so.   Its hardwired to partition 8-way.\
+\
+for i in `seq 0 31` ; do partition-vti.py radial-$i.vti ; done
+\b \
+
+\b0 \
+This creates 32 time steps partitioned 8 ways.\
+\
+
+\b Testing with WriterTest\
+\
+
+\b0 WriterTest is a test program that connects to SimSim just like the visualizers do, but simply writes the output to  disk.   On the command line, it takes a template defined as above (but using a different root string, so it doesn\'92t overwrite the input files.   This can be tested serially; in one window:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 cd $PROJECT/test\
+echo localhost 1900 > layout\
+SimSim radial-%d-%d.vti layout -t 32\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 This will hang, waiting for a visualization app to connect.   In a separate window
+\i  on the same node
+\i0 , run:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 cd $PROJECT/test\
+WriterTest writertest-%d-%d.vti layout\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 This will result in 32 new files, writertest-k-0.vti for k in 0 .. 31 (keeping in mind we ran it serially, so only one partition was processed from each timestep).\
+\
+With an appropriate layout file, we can run in parallel.   On Maverick, I can start an 8-way parallel session in the vis queue and using 8 nodes with one process on each to act as the simulation nodes:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 idev -t 04:00:00 -N 8 -n 8 -p vis\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 \
+When this returns, commands will be running on the root node of 8 allocated nodes.   In a second window on the Maverick login node, run the same thing again:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 idev -t 04:00:00 -N 8 -n 8 -p vis\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 to allocate 8 nodes for the visualization side and again, when it returns commands will be running on the root node of 
+\i 8 other
+\i0  nodes, acting as the visualization nodes.\
+\
+In each, set up the environment appropriately for the ECX executables.   Now, in the window controlling the  \'93simulation\'94 nodes, run:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 cd $PROJECT/test
+\f0\fs24 \
+
+\f1\fs28 mk_layout > layout\
+ 
+\f0\fs24 \
+mk_layout is a simple Python program that examines the SLURM environment of the parallel session and creates an appropriate layout file.   Now, in that window, run\
+\
+
+\f1\fs28 ibrun SimSim radial-%d-%d.vti layout -t 32\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 This will start 8 SImSim processes, each of which loads its data and opens an appropriate port.   In the other  window, run:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 cd $PROJECT/test\
+ibrun WriterTest writertest-%d-%d.vti layout\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 This will start 8 WriterTest processes, 
+\i each connecting to a different SimSim process on different nodes, 
+\i0 and produce 256 writertest-k-l.vti files where k varies from 0 to 31 (the time steps) and l varies from 0 to 7 (the parallel processes).\
+\
+Done thusly, all the variables defined on the input grid are transferred, and if you inspect the writertest-k-l.vti filed you will see all of them.   Alternatively, we could have specified a single variable on the command line:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 ibrun SimSim radial-%d-%d.vti layout
+\f0\fs24 \
+\
+and only the single \'91eightBalls\'92 variable would be passed. \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\b \cf0 Running SimSim And State\
+\
+state 
+\b0 can connect to 
+\b SimSim 
+\b0 to receive time-dependent data.  To do so we need to make a change the input .json file to replace the name of a file containing the data to the layout of a \'93simulation\'94 that will be passing the data.   A modified version of eightBalls.json is eightBalls-simsim.json:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f1\fs28 \cf0 \CocoaLigature0 maverick(14)$ diff eightBalls.json  eightBalls-simsim.json\
+5c5\
+<                 "filename": "radial-0.vol",\
+---\
+>                 "layout": "layout",\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 \CocoaLigature1 \
+We run at one parallel prompt SimSim 
+\i almost 
+\i0 the same as before, but now we only want one variable to be sent:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 ibrun SimSim radial-%d-%d.vti layout eightBalls -t 32\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 and in the other, we run state:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 ibrun state eightBalls-simsim.json \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\b\fs24 \cf0 \
+
+\b0 this will generate 32 images, vtk-0000.png through vtk-0031.png, and we can see that the isosurface at 0.45 changes significantly over time.   Again, an 
+\b -R
+\b0  parameter will cause it to use the ray caster rather than the VTK pipeline.\
+\
+
+\b Running SimSim And Cinema\
+\
+
+\b0 Just like 
+\b state, cinema 
+\b0 can connect to 
+\b SimSim 
+\b0 to receive time-dependent data.  To do so we need to make a change  the input .json file in an analogous fashion: we to replace the data source with one referring to SimSim.   In order to make this work a bit faster, we\'92ve removed the slicing plane and used only the original camera:\
+\cf0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f2\fs28 \CocoaLigature0 \
+\{\
+  "State": "eightBalls-simsim.json",\
+  "Variable":\
+  \{\
+      "type": "isosurface",\
+      "start": 0.1,\
+      "end": 0.9,\
+      "knt": 10,\
+      "Variable":\
+      \{\
+        "type": "camera"\
+      \}\
+  \}\
+\}\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f0\fs24 \cf0 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 We run at one parallel prompt SimSim 
+\i almost 
+\i0 the same as before, with WriteTest, but now we only want one variable to be sent:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 ibrun SimSim radial-%d-%d.vti layout eightBalls -t 32\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 and in the other, we run state:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f1\fs28 \cf0 ibrun cinema -s 512 512 eightBalls-simsim.json \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\b\fs24 \cf0 \
+
+\b0 this will generate a Cinema database of  32*10 = 512 images, which allows is to vary the isovalue given a particular timestep and, given a particular isovalue, see how the data changes across the time steps.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+\cf0 {{\NeXTGraphic Screen Shot 2017-01-12 at 11.10.26 AM.png \width15380 \height10620
+}¬}\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0 \
+\
+}
