@@ -6,7 +6,6 @@ module load qt/4.8.4 vtk
 CC=mpicc \
 CXX=mpicxx \
 	cmake .. \
-		-DVTK_DIR=/Users/gda/vtk-7.0/lib/cmake/vtk-7.0 \
 		-DCMAKE_INSTALL_PREFIX=$PROJECT/install \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DOSPRAY_APPS_MODELVIEWER=OFF \
