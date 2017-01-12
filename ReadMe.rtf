@@ -1,0 +1,54 @@
+This project contains code for testing various configurations for
+in-situ visualization.   
+
+Prerequisites
+
+VTK (I’m using version 7)
+
+On Maverick, I simply load the vtk module.  On my Mac I’m using a custom build, and use
+
+export PATH=/Users/gda/vtk-7.0/bin:$PATH
+export DYLD_LIBRARY_PATH=/Users/gda/vtk-7.0/lib:$DYLD_LIBRARY_PATH
+export CMAKE_PREFIX_PATH=/Users/gda/vtk-7.0/lib/cmake/vtk-7.0:$CMAKE_PREFIX_PATH
+export PYTHONPATH=/Users/gda/vtk-7.0/lib/python2.7/site-packages:$PYTHONPATH
+
+ISPC
+
+Download ispc from https://ispc.github.io/downloads.html  I've been using version 1.9.1   After you've downloaded the tar.gz file, untar it somewhere and put the root directory of the install in your PATH environment variable.   You should then be able to type `which ispc` and get the location of theispc executable.
+
+Building
+
+Choose an installation location and 
+
+git clone git@github.com:ascr-ecx/ecx-harness.git
+cd ecx-harness
+git submodule update --init --recursive
+
+I’ll refer to the install directory - {wherever}/ecx-harness, as $PROJECT.   To get the latest updates of the subprojects,cd into each (pvol, pvol-icet and pvol-ospray) and checkout the master branch.
+
+Create and enter a build directory:
+
+cd $PROJECT
+mkdir bld
+cd bld
+ 
+And run cmake.  I use:
+
+CC=mpicc \
+CXX=mpicxx \
+  cmake .. \
+    -DCMAKE_INSTALL_PREFIX=$PROJECT/install \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DOSPRAY_APPS_MODELVIEWER=OFF \
+    -DOSPRAY_MODULE_LOADERS=OFF \
+    -DOSPRAY_MODULE_OPENGL_UTIL=OFF \
+    -DOSPRAY_APPS_QTVIEWER=OFF \
+    -DOSPRAY_APPS_VOLUMEVIEWER=OFF \
+    -DCMAKE_CXX_COMPILER=mpicxx \
+    -DISPC_EXECUTABLE=`which ispc` \
+    -DCMAKE_CXX_FLAGS=-std=c++11
+
+cmake .
+cmake .
+make -j 8 install
+
