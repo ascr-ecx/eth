@@ -1,4 +1,8 @@
 IDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 export PATH=$IDIR/bin:$PATH
-export LD_LIBRARY_PATH=$IDIR/lib:$IDIR/lib64:$LD_LIBRARY_PATH
+if test `uname -s` == 'Darwin'; then
+	export DYLD_LIBRARY_PATH=$IDIR/lib:$IDIR/lib64:$DYLD_LIBRARY_PATH
+else
+	export LD_LIBRARY_PATH=$IDIR/lib:$IDIR/lib64:$LD_LIBRARY_PATH
+fi

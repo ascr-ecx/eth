@@ -3,27 +3,28 @@
         "volumes": [
             {
                 "filename": "radial-0.vol",
-                "isovalues": "1 0.45",
-                "slices": "1 1 1 2 0",
-                "transfer function": {
-										"color map": "3   0 0.5 0.5 1   0.5 0.5 1 0.5  1 1 0.5 0.5",
-                    "opacity map": "2 0 1 1 1"
-                }
+                "isovalues": [0.45],
+                "slices": [[1, 1, 2, 0]],
+								"colormap": [[0, 0.5, 0.5, 1], [0.5, 0.5, 1, 0.5], [1, 1, 0.5, 0.5]],
+								"opacitymap": [[0, 1], [1, 1]]
             }
         ]
     },
-    "Camera": {
-        "viewpoint": "1 2 3",
-        "viewdirection": "-1 -2 -3",
-        "viewup": "0 1 0",
-        "aov": "40"
-    },
-    "Lighting": {
-        "lights": "1 1 1 0",
-        "shadows": "off",
-        "Ka": "0.5",
-        "Kd": "0.5",
-        "ambient occlusion": "0 1"
-    }
+		"Camera": {
+			"viewpoint": [1, 2, 3],
+			"viewdirection": [-1, -2, -3],
+			"viewup": [0, 1, 0],
+			"aov": 40
+		},
+		"Renderer": {
+				"Lighting": {
+					"Sources": [[0.7071, 0.7071, 0]],
+					"shadows": "off",
+					"Ka": 0.2,
+					"Kd": 0.5,
+					"ao count": 0,
+					"ao radius": 1
+			}
+		}
 }
 
