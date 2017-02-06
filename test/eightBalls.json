@@ -2,9 +2,9 @@
     "DataModel": {
         "volumes": [
             {
-                "filename": "radial-0.vol",
                 "isovalues": [0.45],
-                "slices": [[1, 1, 2, 0]],
+                "slices": [[0, 0, 1, 0]],
+                "filename": "radial-0.vol",
 								"colormap": [[0, 0.5, 0.5, 1], [0.5, 0.5, 1, 0.5], [1, 1, 0.5, 0.5]],
 								"opacitymap": [[0, 1], [1, 1]]
             }
