@@ -18,13 +18,16 @@
 #include <vtkDataArraySelection.h>
 #include <vtkImageData.h>
 #include <vtkUnstructuredGrid.h>
+#include <vtkPolyData.h>
 #include <vtkXMLImageDataReader.h>
 #include <vtkXMLUnstructuredGridReader.h>
+#include <vtkXMLPolyDataReader.h>
 
 #include <vtkDataSetWriter.h>
 
 #define VTI 1
 #define VTU 2
+#define VTP 3
 
 using namespace std;
 
@@ -44,7 +47,7 @@ syntax(char *a)
     exit(1);
 }
 
-template<class TReader> vtkDataSet *ReadAnXMLFile(const char*fileName, char *var)
+template<class T, class TReader> vtkDataSet *ReadAnXMLFile(const char*fileName, char *var)
 {
 	TReader *reader = TReader::New();
   reader->SetFileName(fileName);
@@ -59,7 +62,10 @@ template<class TReader> vtkDataSet *ReadAnXMLFile(const char*fileName, char *var
 				sel->EnableArray(sel->GetArrayName(i));
 	}
   reader->Update();
-  return vtkDataSet::SafeDownCast(reader->GetOutput());
+	T *t = T::New();
+	t->ShallowCopy(reader->GetOutput());
+	reader->Delete();
+  return vtkDataSet::SafeDownCast(t);
 }
 
 void
@@ -170,6 +176,8 @@ main(int argc, char *argv[])
 		datatype = VTI;
 	else if (! strcmp(tmplate + strlen(tmplate) -3, "vtu"))
 		datatype = VTU;
+	else if (! strcmp(tmplate + strlen(tmplate) -3, "vtp"))
+		datatype = VTP;
 	else
 	{
 		if (mpir == 0)
@@ -185,9 +193,11 @@ main(int argc, char *argv[])
 		char filename[1024];
 		sprintf(filename, tmplate, t, mpir);
 		if (datatype == VTI)
-			timesteps.push_back(ReadAnXMLFile<vtkXMLImageDataReader>(filename, var));
+			timesteps.push_back(ReadAnXMLFile<vtkImageData, vtkXMLImageDataReader>(filename, var));
+		else if (datatype == VTP)
+			timesteps.push_back(ReadAnXMLFile<vtkPolyData, vtkXMLPolyDataReader>(filename, var));
 		else
-			timesteps.push_back(ReadAnXMLFile<vtkXMLUnstructuredGridReader>(filename, var));
+			timesteps.push_back(ReadAnXMLFile<vtkUnstructuredGrid, vtkXMLUnstructuredGridReader>(filename, var));
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
