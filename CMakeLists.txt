@@ -11,3 +11,6 @@ add_subdirectory(pvol-ospray)
 add_subdirectory(pvol)
 add_subdirectory(SimSim)
 add_subdirectory(radial)
+
+install(PROGRAMS ecx.env DESTINATION ${CMAKE_INSTALL_PREFIX})
+
