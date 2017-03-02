@@ -42,6 +42,7 @@ syntax(char *a)
       cerr << "options:\n";
       cerr << "  -m r s             set rank, size (for testing)\n";
       cerr << "  -t n               n timesteps (default 1)\n";
+      cerr << "  -R n               Repeat factor (default 1)\n";
     }
     MPI_Finalize();
     exit(1);
@@ -141,6 +142,7 @@ int
 main(int argc, char *argv[])
 {
   int   	nt = 1;
+	int 		nr = 1;
   char  	*layoutfile = NULL;
   char  	*tmplate = NULL;
   char  	*var = NULL;
@@ -161,6 +163,7 @@ main(int argc, char *argv[])
       {
         case 'm': mpir = atoi(argv[++i]); mpis = atoi(argv[++i]); break;
         case 't': nt = atoi(argv[++i]); break;
+        case 'r': nr = atoi(argv[++i]); break;
         default: 
           syntax(argv[0]);
       }
@@ -201,8 +204,6 @@ main(int argc, char *argv[])
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	if (mpir == 0)
-		cerr << "data loaded\n";
 
 	int port;
   GetPort(layoutfile, mpir, port);
@@ -218,30 +219,29 @@ main(int argc, char *argv[])
   serverSocket->CloseSocket();
   serverSocket->Delete();
 
-  for (int t = 0; t < nt; t++)
-  {
-    if (mpir == 0)
-    {
-      std::cerr << "starting timestep " << t << "\n";
-      int flag = 1;
-      skt->Send((const void *)&flag, sizeof(flag));
-    }
+	for (int r = 0; r < nr; r++)
+	{
+		for (int t = 0; t < nt; t++)
+		{
+			if (mpir == 0)
+			{
+				int flag = 1;
+				skt->Send((const void *)&flag, sizeof(flag));
+			}
 
-		// If more than writing the raw data is required, a VTK pipeline 
-		// would be inserted here
+			// If more than writing the raw data is required, a VTK pipeline 
+			// would be inserted here
 
-		wr->SetInputData(timesteps[t]);
-		wr->Update();
+			wr->SetInputData(timesteps[t]);
+			wr->Update();
     
-		int sz = wr->GetOutputStringLength();
-		void *ptr = wr->GetOutputString();
+			int sz = wr->GetOutputStringLength();
+			void *ptr = wr->GetOutputString();
 
-		skt->Send((const void *)&sz, sizeof(sz));
-		skt->Send((const void *)ptr, sz);
-
-    if (mpir == 0)
-      std::cerr << "finished timestep " << t << "\n";
-  }
+			skt->Send((const void *)&sz, sizeof(sz));
+			skt->Send((const void *)ptr, sz);
+		}
+	}
 
   if (mpir == 0)
   {
