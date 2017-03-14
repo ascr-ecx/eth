@@ -1,6 +1,6 @@
 # ECX Testing Harness (ETH) 
 
-<img src="https://github.com/ascr-ecx/ecx-harness/blob/master/img/icon.png" width="50"/>
+<img src="https://github.com/ascr-ecx/ecx-harness/blob/master/img/icon.png" width="100"/>
 
 **Contact:** Greg Abram gda@tacc.utexas.edu (primary developer)
 
