@@ -8,8 +8,6 @@ Testing individual codes for visualization and analysis workflows – though acc
 
 We developed this lightweight test harness (ETH) that can load domain-specific data (for example, from a simulation), and perform a range of analysis and visualization operations in different configurations and with different visualization pipelines to promote comparison of a wide range of experiments.
 
-## Configurations
-
 * Paired simulation and visualization processes can each run different sets of analysis and visualization operations on data read from disk.
 
 * ETH runs many copies of the sim/vis process pairings, in a number of different configuraitons: single process, multi-core, and multi-node.
@@ -17,6 +15,14 @@ We developed this lightweight test harness (ETH) that can load domain-specific d
 * Workflows are based on VTK, so analysis and vis operations can easily be modified to accommodate specific experiments.
 
 * Multiple rendering pipelines (ray traced, and geometry-based) are currently supported.
+
+## Configurations
+
+ETH can be run in several configurations, to explore different distributions of execution.
+
+* **Coupled** The simulation process and the vis/analysis process run in the same process.
+* **Core-to-core** The simulation process and the vis/analysis process run on the same node, but on different cores.
+* **Node-to-node** The simulation process and the vis/analysis process run on different nodes.
 
 ## Acknowledgement 
 
