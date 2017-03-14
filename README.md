@@ -1,5 +1,7 @@
 # ECX Testing Harness (ETH) 
 
+<img src="https://github.com/ascr-ecx/ecx-harness/blob/master/img/icon.png" width="50"/>
+
 **Contact:** Greg Abram gda@tacc.utexas.edu (primary developer)
 
 This is the ECX Test Harness project - a lightweight test harness for evaluating analysis and visualization workflows under different parallel work configurations and rendering options.
@@ -32,3 +34,5 @@ Computing Research** under Award Numbers DE-AS52-06NA25396 and DE-SC-0012516. It
 ## License
 
 This code is licensed under a BSD 3-Clause License. Copyright (c) 2016, University of Texas at Austin, Los Alamos National Laboratory. All rights reserved. 
+
+The icon for this project was downloaded from The Noun Project (www.nounproject.com), and was created by Tamiko Young.
