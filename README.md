@@ -1,3 +1,28 @@
-# This is the README
+# ECX Testing Harness (ETH) 
 
-Here is some text
+**Contact:** Greg Abram gda@tacc.utexas.edu (primary developer)
+
+This is the ECX Test Harness project - a lightweight test harness for evaluating analysis and visualization workflows under different parallel work configurations and rendering options.
+
+Testing individual codes for visualization and analysis workflows – though accurate – presents difficulties in compilation, flexibility and adaptiveness to new experiments.
+
+We developed this lightweight test harness (ETH) that can load domain-specific data (for example, from a simulation), and perform a range of analysis and visualization operations in different configurations and with different visualization pipelines to promote comparison of a wide range of experiments.
+
+## Configurations
+
+* Paired simulation and visualization processes can each run different sets of analysis and visualization operations on data read from disk.
+
+* ETH runs many copies of the sim/vis process pairings, in a number of different configuraitons: single process, multi-core, and multi-node.
+
+* Workflows are based on VTK, so analysis and vis operations can easily be modified to accommodate specific experiments.
+
+* Multiple rendering pipelines (ray traced, and geometry-based) are currently supported.
+
+## Acknowledgement 
+
+This material is based upon work supported by **Dr. Lucy Nowell** of the **U.S. Department of Energy Office of Science, Advanced Scientific 
+Computing Research** under Award Numbers DE-AS52-06NA25396 and DE-SC-0012516. It is an artifact created for the ECX project (http://www.ecxproject.org)
+
+## License
+
+This code is licensed under a BSD 3-Clause License. Copyright (c) 2016, University of Texas at Austin, Los Alamos National Laboratory. All rights reserved. 
